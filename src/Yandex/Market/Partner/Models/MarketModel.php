@@ -2,106 +2,174 @@
 
 namespace Yandex\Market\Partner\Models;
 
-abstract class MarketModel
+use Yandex\Common\Model;
+
+class MarketModel extends Model
 {
-
-    protected $mappingClasses = [];
+    /**
+     * @var int
+     */
+    protected $id;
 
     /**
-     * Constructor
-     *
-     * @param array $data
+     * @var string
      */
-    public function __construct($data = [])
+    protected $name;
+
+    /**
+     * @var MarketModelPrices
+     */
+    protected $prices;
+
+    /**
+     * @var MarketModelOffers
+     */
+    protected $offers;
+
+    /**
+     * @var int
+     */
+    protected $offlineOffers;
+
+    /**
+     * @var int
+     */
+    protected $onlineOffers;
+
+    protected $mappingClasses = [
+        'prices' => MarketModelPrices::class,
+        'offers' => MarketModelOffers::class,
+    ];
+
+    /**
+     * Retrieve the id property
+     *
+     * @return int
+     */
+    public function getId()
     {
-        $this->fromArray($data);
+        return $this->id;
     }
 
     /**
-     * Set from array
+     * Set the id property
      *
-     * @param array $data
-     * @return $this
+     * @param int $id
+     * @return MarketModel
      */
-    public function fromArray($data)
+    public function setId($id)
     {
-        foreach ($data as $key => $val) {
-            if (is_int($key)) {
-                if (method_exists($this, "add")) {
-                    $this->add($val);
-                }
-            }
-        
-            if (property_exists($this, $key)) {
-                if (isset($this->mappingClasses[$key])) {
-                    $this->{$key} = new $this->mappingClasses[$key]($val);
-                    if (method_exists($this->{$key}, "getAll")) {
-                        $this->{$key} = $this->{$key}->getAll();
-                    }
-                } else {
-                    $this->{$key} = $val;
-                }
-            }
-        }
+        $this->id = $id;
         return $this;
     }
 
     /**
-     * Set from json
-     *
-     * @param string $json
-     * @return $this
-     */
-    public function fromJson($json)
-    {
-        $this->fromArray(json_decode($json, true));
-        return $this;
-    }
-
-    /**
-     * Get array from object
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->toArrayRecursive($this);
-    }
-
-    /**
-     * Get array from object
+     * Get name
      *
      * @return string
      */
-    public function toJson()
+    public function getName()
     {
-        return json_encode($this->toArrayRecursive($this));
+        return $this->name;
     }
 
     /**
-     * Get array from object
+     * Set name
      *
-     * @param array|object $data
-     * @return array
+     * @param string $name
+     * @return MarketModel
      */
-    protected function toArrayRecursive($data)
+    public function setName($name)
     {
-        if (is_array($data) || is_object($data)) {
-            $result = [];
-            foreach ($data as $key => $value) {
-                if ($key === "mappingClasses") {
-                    continue;
-                }
-                if (is_object($value) && method_exists($value, "getAll")) {
-                    $result[$key] = $this->toArrayRecursive($value->getAll());
-                } else {
-                    if ($value !== null) {
-                        $result[$key] = $this->toArrayRecursive($value);
-                    }
-                }
-            }
-            return $result;
-        }
-        return $data;
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Get model prices
+     *
+     * @return MarketModelPrices|null
+     */
+    public function getPrices()
+    {
+        return $this->prices;
+    }
+
+    /**
+     * Set model prices
+     *
+     * @param MarketModelPrices $prices
+     * @return MarketModel
+     */
+    public function setPrices($prices)
+    {
+        $this->prices = $prices;
+        return $this;
+    }
+
+    /**
+     * Get model offers
+     *
+     * @return MarketModelOffers|null
+     */
+    public function getOffers()
+    {
+        return $this->offers;
+    }
+
+    /**
+     * Set model offers
+     *
+     * @param MarketModelOffers $offers
+     * @return MarketModel
+     */
+    public function setOffers($offers)
+    {
+        $this->offers = $offers;
+        return $this;
+    }
+
+    /**
+     * Get number of product offerings int the retail (offline) stores
+     *
+     * @return int|null
+     */
+    public function getOfflineOffers()
+    {
+        return $this->offlineOffers;
+    }
+
+    /**
+     * Set number of product offerings in retail (offline) stores
+     *
+     * @param int $offlineOffers
+     * @return MarketModel
+     */
+    public function setOfflineOffers($offlineOffers)
+    {
+        $this->offlineOffers = $offlineOffers;
+        return $this;
+    }
+
+    /**
+     * Get the number of product offerings online
+     *
+     * @return int|null
+     */
+    public function getOnlineOffers()
+    {
+        return $this->onlineOffers;
+    }
+
+    /**
+     * Set the number of product offerings online
+     *
+     * @param int $onlineOffers
+     * @return MarketModel
+     */
+    public function setOnlineOffers($onlineOffers)
+    {
+        $this->onlineOffers = $onlineOffers;
+        return $this;
     }
 }

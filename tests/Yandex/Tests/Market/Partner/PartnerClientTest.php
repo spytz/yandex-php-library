@@ -8,6 +8,8 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Stream;
 use Yandex\Market\Partner\Models\Item;
+use Yandex\Market\Partner\Models\MarketModel;
+use Yandex\Market\Partner\Models\MarketModelOffer;
 use Yandex\Market\Partner\Models\Order;
 use Yandex\Market\Partner\PartnerClient;
 use Yandex\Tests\TestCase;
@@ -365,5 +367,139 @@ class PartnerClientTest extends TestCase
         $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException', 'testUnauthorizedExceptionMessage');
 
         $marketPartnerMock->getOrder($orderId);
+    }
+
+    function testGetModel()
+    {
+        $fixture = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-model.json');
+        $fixtureJson = json_decode($fixture);
+
+        $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($fixture));
+        $marketPartnerMock = $this->getMock(PartnerClient::class, ['sendRequest']);
+        $marketPartnerMock->expects($this->any())
+            ->method('sendRequest')
+            ->will($this->returnValue($response));
+
+        /** @var MarketModel $model */
+        $model = $marketPartnerMock->getModel(7012977, 213, 'RUR');
+
+        $modelJson = $fixtureJson->models[0];
+        $this->assertEquals($modelJson->id, $model->getId());
+        $this->assertEquals($modelJson->name, $model->getName());
+        $this->assertEquals($modelJson->prices->min, $model->getPrices()->getMin());
+        $this->assertEquals($modelJson->prices->max, $model->getPrices()->getMax());
+        $this->assertEquals($modelJson->prices->avg, $model->getPrices()->getAvg());
+    }
+
+    function testFindModel()
+    {
+        $fixture = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/find-models.json');
+        $fixtureJson = json_decode($fixture);
+
+        $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($fixture));
+        $marketPartnerMock = $this->getMock(PartnerClient::class, ['sendRequest']);
+        $marketPartnerMock->expects($this->any())
+            ->method('sendRequest')
+            ->will($this->returnValue($response));
+
+        $marketModelsResponse = $marketPartnerMock->findModels('Apple iPhone 4S', 2, 'RUR');
+        $models = $marketModelsResponse->getModels();
+
+        /** @var MarketModel $model */
+        foreach ($models as $index => $model) {
+            $modelJson = $fixtureJson->models[$index];
+            $this->assertEquals($modelJson->id, $model->getId());
+            $this->assertEquals($modelJson->name, $model->getName());
+            $this->assertEquals($modelJson->prices->min, $model->getPrices()->getMin());
+            $this->assertEquals($modelJson->prices->max, $model->getPrices()->getMax());
+            $this->assertEquals($modelJson->prices->avg, $model->getPrices()->getAvg());
+        }
+    }
+
+    function testGetModels()
+    {
+        $fixture = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-models.json');
+        $fixtureJson = json_decode($fixture);
+
+        $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($fixture));
+        $marketPartnerMock = $this->getMock(PartnerClient::class, ['sendRequest']);
+        $marketPartnerMock->expects($this->any())
+            ->method('sendRequest')
+            ->will($this->returnValue($response));
+
+        $models = $marketPartnerMock->getModels([7717706, 7717686, 7717687], 2, 'RUR');
+
+        /** @var MarketModel $model */
+        foreach ($models as $index => $model) {
+            $modelJson = $fixtureJson->models[$index];
+            $this->assertEquals($modelJson->id, $model->getId());
+            $this->assertEquals($modelJson->name, $model->getName());
+            $this->assertEquals($modelJson->prices->min, $model->getPrices()->getMin());
+            $this->assertEquals($modelJson->prices->max, $model->getPrices()->getMax());
+            $this->assertEquals($modelJson->prices->avg, $model->getPrices()->getAvg());
+        }
+    }
+
+    function testGetModelOffers()
+    {
+        $fixture = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-model-offers.json');
+        $fixtureJson = json_decode($fixture);
+
+        $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($fixture));
+        $marketPartnerMock = $this->getMock(PartnerClient::class, ['sendRequest']);
+        $marketPartnerMock->expects($this->any())
+            ->method('sendRequest')
+            ->will($this->returnValue($response));
+
+        /** @var MarketModel $model */
+        $model = $marketPartnerMock->getModelOffers(11002659, 213, 'RUR');
+
+        $modelJson = $fixtureJson->models[0];
+
+        $this->assertEquals($modelJson->id, $model->getId());
+
+        /** @var MarketModelOffer $offer */
+        foreach ($model->getOffers() as $index => $offer) {
+            $offerJson = $modelJson->offers[$index];
+            $this->assertEquals($offerJson->inStock, $offer->getInStock());
+            $this->assertEquals($offerJson->name, $offer->getName());
+            $this->assertEquals($offerJson->pos, $offer->getPos());
+            $this->assertEquals($offerJson->price, $offer->getPrice());
+            $this->assertEquals($offerJson->regionId, $offer->getRegionId());
+            $this->assertEquals($offerJson->shippingCost, $offer->getShippingCost());
+            $this->assertEquals($offerJson->shopName, $offer->getShopName());
+        }
+    }
+
+    function testGetModelsOffers()
+    {
+        $fixture = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-model-offers.json');
+        $fixtureJson = json_decode($fixture);
+
+        $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($fixture));
+        $marketPartnerMock = $this->getMock(PartnerClient::class, ['sendRequest']);
+        $marketPartnerMock->expects($this->any())
+            ->method('sendRequest')
+            ->will($this->returnValue($response));
+
+        $models = $marketPartnerMock->getModelsOffers([11002659], 213, 'RUR');
+
+        /** @var MarketModel $model */
+        foreach ($models as $modelIndex => $model) {
+            $modelJson = $fixtureJson->models[$modelIndex];
+            $this->assertEquals($modelJson->id, $model->getId());
+
+            /** @var MarketModelOffer $offer */
+            foreach ($model->getOffers() as $offerIndex => $offer) {
+                $offerJson = $modelJson->offers[$offerIndex];
+                $this->assertEquals($offerJson->inStock, $offer->getInStock());
+                $this->assertEquals($offerJson->name, $offer->getName());
+                $this->assertEquals($offerJson->pos, $offer->getPos());
+                $this->assertEquals($offerJson->price, $offer->getPrice());
+                $this->assertEquals($offerJson->regionId, $offer->getRegionId());
+                $this->assertEquals($offerJson->shippingCost, $offer->getShippingCost());
+                $this->assertEquals($offerJson->shopName, $offer->getShopName());
+            }
+        }
     }
 }

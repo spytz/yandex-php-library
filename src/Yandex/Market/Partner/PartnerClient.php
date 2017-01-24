@@ -18,7 +18,17 @@ use GuzzleHttp\Exception\ClientException;
 use Yandex\Common\Exception\ForbiddenException;
 use Yandex\Common\Exception\UnauthorizedException;
 use Yandex\Market\Partner\Exception\PartnerRequestException;
-use Yandex\Market\Partner\Models;
+use Yandex\Market\Partner\Models\Delivery;
+use Yandex\Market\Partner\Models\GetCampaignsResponse;
+use Yandex\Market\Partner\Models\GetMarketModelsResponse;
+use Yandex\Market\Partner\Models\GetOrderResponse;
+use Yandex\Market\Partner\Models\GetOrdersResponse;
+use Yandex\Market\Partner\Models\MarketModel;
+use Yandex\Market\Partner\Models\MarketModels;
+use Yandex\Market\Partner\Models\Order;
+use Yandex\Market\Partner\Models\Orders;
+use Yandex\Market\Partner\Models\UpdateOrderDeliveryResponse;
+use Yandex\Market\Partner\Models\UpdateOrderStatusResponse;
 
 /**
  * Class PartnerClient
@@ -272,7 +282,7 @@ class PartnerClient extends AbstractServiceClient
      *
      * @see http://api.yandex.ru/market/partner/doc/dg/reference/get-campaigns.xml
      *
-     * @return Models\Campaigns
+     * @return Campaigns
      */
     public function getCampaigns()
     {
@@ -282,7 +292,7 @@ class PartnerClient extends AbstractServiceClient
 
         $decodedResponseBody = $this->getDecodedBody($response->getBody());
 
-        $getCampaignsResponse = new Models\GetCampaignsResponse($decodedResponseBody);
+        $getCampaignsResponse = new GetCampaignsResponse($decodedResponseBody);
         return $getCampaignsResponse->getCampaigns();
     }
 
@@ -298,7 +308,7 @@ class PartnerClient extends AbstractServiceClient
      *
      * @see http://api.yandex.ru/market/partner/doc/dg/reference/get-campaigns-id-orders.xml
      *
-     * @return Models\GetOrdersResponse
+     * @return GetOrdersResponse
      */
     public function getOrdersResponse($params = [])
     {
@@ -309,7 +319,7 @@ class PartnerClient extends AbstractServiceClient
 
         $decodedResponseBody = $this->getDecodedBody($response->getBody());
 
-        return new Models\GetOrdersResponse($decodedResponseBody);
+        return new GetOrdersResponse($decodedResponseBody);
     }
 
 
@@ -317,7 +327,7 @@ class PartnerClient extends AbstractServiceClient
      * Get only orders data without pagination
      *
      * @param array $params
-     * @return null|Models\Orders
+     * @return null|Orders
      */
     public function getOrders($params = [])
     {
@@ -329,7 +339,7 @@ class PartnerClient extends AbstractServiceClient
      * Get order info
      *
      * @param int $orderId
-     * @return Models\Order
+     * @return Order
      *
      * @link http://api.yandex.ru/market/partner/doc/dg/reference/get-campaigns-id-orders-id.xml
      */
@@ -341,7 +351,7 @@ class PartnerClient extends AbstractServiceClient
 
         $decodedResponseBody = $this->getDecodedBody($response->getBody());
 
-        $getOrderResponse = new Models\GetOrderResponse($decodedResponseBody);
+        $getOrderResponse = new GetOrderResponse($decodedResponseBody);
         return $getOrderResponse->getOrder();
     }
 
@@ -352,7 +362,7 @@ class PartnerClient extends AbstractServiceClient
      * @param int $orderId
      * @param string $status
      * @param null|string $subStatus
-     * @return Models\Order
+     * @return Order
      *
      * @link http://api.yandex.ru/market/partner/doc/dg/reference/put-campaigns-id-orders-id-status.xml
      */
@@ -379,7 +389,7 @@ class PartnerClient extends AbstractServiceClient
 
         $decodedResponseBody = $this->getDecodedBody($response->getBody());
 
-        $updateOrderStatusResponse = new Models\UpdateOrderStatusResponse($decodedResponseBody);
+        $updateOrderStatusResponse = new UpdateOrderStatusResponse($decodedResponseBody);
         return $updateOrderStatusResponse->getOrder();
     }
 
@@ -388,15 +398,15 @@ class PartnerClient extends AbstractServiceClient
      * Update changed delivery parameters
      *
      * @param int $orderId
-     * @param Models\Delivery $delivery
-     * @return Models\Order
+     * @param Delivery $delivery
+     * @return Order
      *
      * Example:
      * PUT /v2/campaigns/10003/order/12345/delivery.json HTTP/1.1
      *
      * @link http://api.yandex.ru/market/partner/doc/dg/reference/put-campaigns-id-orders-id-delivery.xml
      */
-    public function updateDelivery($orderId, Models\Delivery $delivery)
+    public function updateDelivery($orderId, Delivery $delivery)
     {
         $resource = 'campaigns/' . $this->campaignId . '/orders/' . $orderId . '/delivery.json';
 
@@ -412,7 +422,161 @@ class PartnerClient extends AbstractServiceClient
 
         $decodedResponseBody = $this->getDecodedBody($response->getBody());
 
-        $updateOrderDeliveryResponse = new Models\UpdateOrderDeliveryResponse($decodedResponseBody);
+        $updateOrderDeliveryResponse = new UpdateOrderDeliveryResponse($decodedResponseBody);
         return $updateOrderDeliveryResponse->getOrder();
+    }
+
+    /**
+     * Filter query params
+     *
+     * @param array $params
+     * @return array
+     */
+    private function filterParams(array $params)
+    {
+        return array_filter($params, function($param) {
+            return !empty($param);
+        });
+    }
+
+    /**
+     * Get product model by ID
+     *
+     * @param int $modelId
+     * @param int $regionId
+     * @param string $currency
+     * @return MarketModel
+     *
+     * @link https://tech.yandex.ru/market/partner/doc/dg/reference/get-models-id-docpage/
+     */
+    public function getModel($modelId, $regionId, $currency = null)
+    {
+        $resource = sprintf('models/%s.%s', $modelId, self::DECODE_TYPE_DEFAULT);
+        $queryParams = $this->filterParams([
+            'regionId' => $regionId,
+            'currency' => $currency,
+        ]);
+
+        $response = $this->sendRequest('GET', $this->getServiceUrl($resource), ['query' => $queryParams]);
+        $decodedResponseBody = $this->getDecodedBody($response->getBody());
+        $marketModelsResponse = new GetMarketModelsResponse($decodedResponseBody);
+
+        return $marketModelsResponse->getModels()->current();
+    }
+
+    /**
+     * Find models by query
+     *
+     * @param string $searchQuery
+     * @param int $regionId
+     * @param int $page
+     * @param int $pageSize
+     * @param string $currency
+     * @return GetMarketModelsResponse
+     *
+     * @link https://tech.yandex.ru/market/partner/doc/dg/reference/get-models-docpage/
+     */
+    public function findModels($searchQuery, $regionId, $page = null, $pageSize = null, $currency = null)
+    {
+        $resource = sprintf('models.%s', self::DECODE_TYPE_DEFAULT);
+        $queryParams = $this->filterParams([
+            'query' => $searchQuery,
+            'regionId' => $regionId,
+            'page' => $page,
+            'pageSize' => $pageSize,
+            'currency' => $currency,
+        ]);
+
+        $response = $this->sendRequest('GET', $this->getServiceUrl($resource), ['query' => $queryParams]);
+        $decodedResponseBody = $this->getDecodedBody($response->getBody());
+
+        return new GetMarketModelsResponse($decodedResponseBody);
+    }
+
+    /**
+     * Get multiple models by ids
+     *
+     * @param array $modelIds
+     * @param int $regionId
+     * @param string $currency
+     * @return MarketModels
+     *
+     * @link https://tech.yandex.ru/market/partner/doc/dg/reference/post-models-docpage/
+     */
+    public function getModels(array $modelIds, $regionId, $currency = null)
+    {
+        $resource = sprintf('models.%s', self::DECODE_TYPE_DEFAULT);
+        $queryParams = $this->filterParams([
+            'regionId' => $regionId,
+            'currency' => $currency,
+        ]);
+
+        $response = $this->sendRequest('POST', $this->getServiceUrl($resource), [
+            'query' => $queryParams,
+            'json' => [
+                'models' => $modelIds
+            ],
+        ]);
+        $decodedResponseBody = $this->getDecodedBody($response->getBody());
+        $marketModelsResponse = new GetMarketModelsResponse($decodedResponseBody);
+
+        return $marketModelsResponse->getModels();
+    }
+
+    /**
+     * Get model offers
+     *
+     * @param int $modelId
+     * @param int $regionId
+     * @param string $currency
+     * @param string $orderByPrice
+     * @return MarketModel
+     *
+     * @link https://tech.yandex.ru/market/partner/doc/dg/reference/get-models-id-offers-docpage/
+     */
+    public function getModelOffers($modelId, $regionId, $currency = null, $orderByPrice = null)
+    {
+        $resource = sprintf('models/%s/offers.%s', $modelId, self::DECODE_TYPE_DEFAULT);
+        $queryParams = $this->filterParams([
+            'regionId' => $regionId,
+            'currency' => $currency,
+            'orderByPrice' => $orderByPrice,
+        ]);
+
+        $response = $this->sendRequest('GET', $this->getServiceUrl($resource), ['query' => $queryParams]);
+        $decodedResponseBody = $this->getDecodedBody($response->getBody());
+        $marketModelsResponse = new GetMarketModelsResponse($decodedResponseBody);
+
+        return $marketModelsResponse->getModels()->current();
+    }
+
+    /**
+     * Get multiple models offers
+     *
+     * @param array $modelIds
+     * @param int $regionId
+     * @param string $currency
+     * @return MarketModels
+     *
+     * @link https://tech.yandex.ru/market/partner/doc/dg/reference/post-models-offers-docpage/
+     */
+    public function getModelsOffers(array $modelIds, $regionId, $currency = null)
+    {
+        $resource = sprintf('models/offers.%s', self::DECODE_TYPE_DEFAULT);
+        $queryParams = $this->filterParams([
+            'regionId' => $regionId,
+            'currency' => $currency,
+        ]);
+
+        $response = $this->sendRequest('POST', $this->getServiceUrl($resource), [
+            'query' => $queryParams,
+            'json' => [
+                'models' => $modelIds
+            ],
+        ]);
+        $decodedResponseBody = $this->getDecodedBody($response->getBody());
+        $marketModelsResponse = new GetMarketModelsResponse($decodedResponseBody);
+
+        return $marketModelsResponse->getModels();
     }
 }
