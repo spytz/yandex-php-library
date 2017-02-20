@@ -23,7 +23,7 @@ function localSearchUrl($url, $key)
 
     //Creating hashes by url
     $hashes = $safeBrowsing->getHashesByUrl($url);
-    $localDbFile = 'hosts_prefixes.json';
+    $localDbFile = 'hosts_prefixes_all.json';
 
     if (!is_file($localDbFile)) {
         exit('File "' . $localDbFile . '" not found');
