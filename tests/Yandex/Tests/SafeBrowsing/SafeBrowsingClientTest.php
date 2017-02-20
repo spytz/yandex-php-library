@@ -475,8 +475,11 @@ class SafeBrowsingClientTest extends TestCase
             ->method('getChunkByUrl')
             ->will($this->returnValue($chunk));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
-        $safeBrowsingMock->getMalwaresData();
+        $result = $safeBrowsingMock->getMalwaresData();
+
+        $this->assertArrayHasKey('ydx-malware-shavar', $result);
+        $this->assertArrayHasKey('removed', $result['ydx-malware-shavar']);
+        $this->assertArrayHasKey('13314', $result['ydx-malware-shavar']['removed']);
     }
 
     public function testParseChunkIncorrectChunkType()

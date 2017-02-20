@@ -577,15 +577,15 @@ class SafeBrowsingClient extends AbstractServiceClient
         $chunkInfo = explode(':', $splitHead[0]);
         list($type, $chunkNum, $hashLen, $chunkLen) = $chunkInfo;
 
-        if ($chunkLen < 1) {
-            throw new SafeBrowsingException(
-                'ERROR: In chunkNum "' . $chunkNum . '" incorrect chunk length "' . $chunkLen . '"'
-            );
+        if ($chunkLen > 0) {
+            //Convert to hex for easy processing
+            //First get chunkData according to length
+            $chunkData = bin2hex(substr($splitHead[1], 0, $chunkLen));
+        } else {
+            //No ChunkData, Still Parse
+            $chunkData = '';
         }
 
-        //Convert to hex for easy processing
-        //First get chunkData according to length
-        $chunkData = bin2hex(substr($splitHead[1], 0, $chunkLen));
         if ($type == 'a') {
             $prefixes = [];
             while (strlen($chunkData) > 0) {
