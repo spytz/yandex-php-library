@@ -6,7 +6,6 @@
  * @created  07.02.14 14:00
  */
 ini_set('memory_limit', '256M');
-$settings = require_once '../settings.php';
 
 use Yandex\SafeBrowsing\SafeBrowsingClient;
 use Yandex\SafeBrowsing\SafeBrowsingException;
