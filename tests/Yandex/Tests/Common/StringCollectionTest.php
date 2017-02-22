@@ -2,11 +2,11 @@
 
 namespace Yandex\Tests\Common;
 
-
+use PHPUnit\Framework\TestCase as PHPUnitFrameworkTestCase;
 use Yandex\Common\StringCollection;
 use Yandex\Metrica\Stat\Models\ByTimeParams;
 
-class StringCollectionTest extends \PHPUnit_Framework_TestCase
+class StringCollectionTest extends PHPUnitFrameworkTestCase
 {
 
    public function testNullArgumentReceived()

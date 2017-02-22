@@ -6,6 +6,7 @@ namespace Yandex\Tests;
 
 use Yandex;
 use ReflectionClass;
+use PHPUnit\Framework\TestCase as PHPUnitFrameworkTestCase;
 
 /**
  * ControllerTestCase
@@ -16,7 +17,7 @@ use ReflectionClass;
  * @author   Anton Shevchuk
  * @created  07.08.13 12:01
  */
-class TestCase extends \PHPUnit_Framework_TestCase
+class TestCase extends PHPUnitFrameworkTestCase
 {
     /**
      * @param string|object $classNameOrObject
