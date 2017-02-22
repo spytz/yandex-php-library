@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market\Content;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\ShopClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class ShopClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $shopClientMock = $this->getMock('Yandex\Market\Content\Clients\ShopClient', ['sendRequest']);
+        $shopClientMock = $this->getMockBuilder(ShopClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $shopClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -86,12 +88,14 @@ class ShopClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $shopClientMock = $this->getMock('Yandex\Market\Content\Clients\ShopClient', ['sendRequest']);
+        $shopClientMock = $this->getMockBuilder(ShopClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $shopClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $shopMatch = $shopClientMock->getMatch(['host'=>'proxenum.ru', 'fields'=>'juridical,rating']);
+        $shopMatch = $shopClientMock->getMatch(['host' => 'proxenum.ru', 'fields' => 'juridical,rating']);
 
         $shop = $shopMatch->getShop();
 
@@ -147,12 +151,14 @@ class ShopClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $shopClientMock = $this->getMock('Yandex\Market\Content\Clients\ShopClient', ['sendRequest']);
+        $shopClientMock = $this->getMockBuilder(ShopClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $shopClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $modelOutlets = $shopClientMock->getOutlets(4779, ['geo_id'=>213]);
+        $modelOutlets = $shopClientMock->getOutlets(4779, ['geo_id' => 213]);
 
         $this->assertEquals(
             $jsonObj->outlets->count,
@@ -357,12 +363,14 @@ class ShopClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $shopClientMock = $this->getMock('Yandex\Market\Content\Clients\ShopClient', ['sendRequest']);
+        $shopClientMock = $this->getMockBuilder(ShopClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $shopClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $responseOpinions = $shopClientMock->getOpinions(4779, ['sort'=>'rank', 'max_comments'=>10]);
+        $responseOpinions = $shopClientMock->getOpinions(4779, ['sort' => 'rank', 'max_comments' => 10]);
 
         $this->assertEquals(
             $jsonObj->shopOpinions->total,
@@ -408,11 +416,11 @@ class ShopClientTest extends TestCase
         );
         $this->assertEquals(
             $jsonObj->shopOpinions->opinion[0]->pro,
-            (string) $opinion0->getPro()
+            (string)$opinion0->getPro()
         );
         $this->assertEquals(
             $jsonObj->shopOpinions->opinion[0]->contra,
-            (string) $opinion0->getContra()
+            (string)$opinion0->getContra()
         );
         $this->assertEquals(
             $jsonObj->shopOpinions->opinion[0]->region,

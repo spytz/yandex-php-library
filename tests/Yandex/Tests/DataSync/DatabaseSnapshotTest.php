@@ -35,8 +35,9 @@ class DatabaseSnapshotTest extends TestCase
         $json     = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/database-snapshot.json');
         $jsonObj  = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -124,8 +125,9 @@ class DatabaseSnapshotTest extends TestCase
         $json     = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-database-snapshot-filtered.json');
         $jsonObj  = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

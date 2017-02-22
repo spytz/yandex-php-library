@@ -10,9 +10,13 @@
  */
 namespace Yandex\Tests\SiteSearchPinger;
 
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Request;
-use Yandex\DataSync\Models\Database;
+use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\InvalidArgumentException;
+use Yandex\Common\Exception\InvalidSettingsException;
+use Yandex\SiteSearchPinger\Exception\InvalidUrlException;
+use Yandex\SiteSearchPinger\Exception\SiteSearchPingerException;
 use Yandex\SiteSearchPinger\SiteSearchPinger;
 use Yandex\Tests\TestCase;
 
@@ -42,7 +46,7 @@ class SiteSearchPingerTest extends TestCase
     public function testInvalidSettingsException()
     {
         $siteSearchPinger = new SiteSearchPinger();
-        $this->setExpectedException('Yandex\Common\Exception\InvalidSettingsException');
+        $this->expectException(InvalidSettingsException::class);
         $siteSearchPinger->ping($this->fixtureUrls);
     }
 
@@ -56,12 +60,15 @@ class SiteSearchPingerTest extends TestCase
         $invalidMalformedUrlsMessage = 'Invalid URL format';
         $xml                         = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/ping-response.xml');
         $response                    = new Response(200, [], \GuzzleHttp\Psr7\stream_for($xml));
-        $guzzleHttpClientMock        = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -89,12 +96,15 @@ class SiteSearchPingerTest extends TestCase
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($xml));
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -103,7 +113,7 @@ class SiteSearchPingerTest extends TestCase
         $pingerMock->setLogin($login);
         $pingerMock->setSearchId($searchId);
 
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
 
         $pingerMock->ping($this->fixtureUrls, time());
     }
@@ -117,12 +127,15 @@ class SiteSearchPingerTest extends TestCase
             __DIR__ . '/' . $this->fixturesFolder . '/ping-response-empty-param.xml'
         );
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($xml));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -131,7 +144,7 @@ class SiteSearchPingerTest extends TestCase
         $pingerMock->setLogin($login);
         $pingerMock->setSearchId($searchId);
 
-        $this->setExpectedException('Yandex\SiteSearchPinger\Exception\InvalidUrlException');
+        $this->expectException(InvalidUrlException::class);
 
         $pingerMock->ping([]);
     }
@@ -142,12 +155,15 @@ class SiteSearchPingerTest extends TestCase
         $login                = 'login';
         $searchId             = '111111';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(''));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -156,7 +172,7 @@ class SiteSearchPingerTest extends TestCase
         $pingerMock->setLogin($login);
         $pingerMock->setSearchId($searchId);
 
-        $this->setExpectedException('Yandex\SiteSearchPinger\Exception\SiteSearchPingerException');
+        $this->expectException(SiteSearchPingerException::class);
 
         $pingerMock->ping($this->fixtureUrls);
     }
@@ -169,12 +185,15 @@ class SiteSearchPingerTest extends TestCase
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(''));
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -197,12 +216,15 @@ class SiteSearchPingerTest extends TestCase
         $request              = new Request('POST', '');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($xml));
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SiteSearchPinger $pingerMock */
-        $pingerMock = $this->getMock('Yandex\SiteSearchPinger\SiteSearchPinger', ['getClient']);
+        $pingerMock = $this->getMockBuilder(SiteSearchPinger::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $pingerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -211,7 +233,7 @@ class SiteSearchPingerTest extends TestCase
         $pingerMock->setLogin($login);
         $pingerMock->setSearchId($searchId);
 
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
 
         $pingerMock->ping($this->fixtureUrls);
     }

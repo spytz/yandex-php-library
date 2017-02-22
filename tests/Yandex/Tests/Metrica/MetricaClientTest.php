@@ -10,13 +10,18 @@
  */
 namespace Yandex\Tests\Dictionary;
 
-use Yandex\Dictionary\DictionaryClient;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\ForbiddenException;
+use Yandex\Common\Exception\TooManyRequestsException;
+use Yandex\Common\Exception\UnauthorizedException;
+use Yandex\Metrica\Exception\BadRequestException;
+use Yandex\Metrica\Exception\MetricaException;
+use Yandex\Metrica\Management\AccountsClient;
 use Yandex\Metrica\MetricaClient;
 use Yandex\Tests\Metrica\Fixtures\Accounts;
 use Yandex\Tests\TestCase;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
-use Yandex\Metrica\Management\AccountsClient;
 
 /**
  * PackageTest
@@ -41,122 +46,137 @@ class MetricaClientTest extends TestCase
     public function testConstructWithCustomGuzzleClient()
     {
         $token = 'test';
-        $metricaClient = new MetricaClient($token, $this->getMock('GuzzleHttp\Client'));
+        $mock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
+        $metricaClient = new MetricaClient($token, $mock);
         $this->assertEquals($token, $metricaClient->getAccessToken());
     }
 
     function testSendRequestForbiddenException()
     {
-        $token                = 'test';
         $response             = new Response(403);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\ForbiddenException');
+        $this->expectException(ForbiddenException::class);
         $accountsClientMock->getAccounts();
     }
 
     function testSendRequestUnauthorizedException()
     {
-        $token                = 'test';
         $response             = new Response(401);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException');
+        $this->expectException(UnauthorizedException::class);
         $accountsClientMock->getAccounts();
     }
 
     function testSendRequestBadRequestException()
     {
         $fixtures             = Accounts::$badRequestFixtures;
-        $token                = 'test';
         $response             = new Response(400, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Metrica\Exception\BadRequestException');
+        $this->expectException(BadRequestException::class);
         $accountsClientMock->getAccounts();
     }
 
     function testSendRequestTooManyRequestsException()
     {
-        $token                = 'test';
         $response             = new Response(429);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\TooManyRequestsException');
+        $this->expectException(TooManyRequestsException::class);
         $accountsClientMock->getAccounts();
     }
 
     function testSendRequestMetricaException()
     {
-        $token                = 'test';
         $response             = new Response(500);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Metrica\Exception\MetricaException');
+        $this->expectException(MetricaException::class);
         $accountsClientMock->getAccounts();
     }
 
     function testSendRequestResponse()
     {
         $fixtures             = Accounts::$accountsFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

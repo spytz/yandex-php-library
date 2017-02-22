@@ -2,19 +2,14 @@
 
 namespace Yandex\Tests\Speller;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
 use Yandex\Speller\SpellerClient;
 use Yandex\Tests\TestCase;
 
 class SpellerClientTest extends TestCase
 {
     protected $fixturesFolder = 'fixtures';
-
-    public function testCreate()
-    {
-        $this->getSpellerClient();
-    }
 
     public function testGetClient()
     {
@@ -171,12 +166,15 @@ class SpellerClientTest extends TestCase
     {
         $json                 = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/' . $fixtureFile);
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SpellerClient $spellerClientMock */
-        $spellerClientMock = $this->getMock('Yandex\Speller\SpellerClient', ['getClient']);
+        $spellerClientMock = $this->getMockBuilder(SpellerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $spellerClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -255,12 +253,15 @@ class SpellerClientTest extends TestCase
     {
         $json                 = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/' . $fixtureFile);
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SpellerClient $spellerClientMock */
-        $spellerClientMock = $this->getMock('Yandex\Speller\SpellerClient', ['getClient']);
+        $spellerClientMock = $this->getMockBuilder(SpellerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $spellerClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

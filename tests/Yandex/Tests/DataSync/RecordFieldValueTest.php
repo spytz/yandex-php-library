@@ -10,6 +10,7 @@
  */
 namespace Yandex\Tests\DataSync;
 
+use Yandex\DataSync\Exception\EmptyRecordFieldValueTypeException;
 use Yandex\DataSync\Models\Database\Delta\RecordFieldValue;
 use Yandex\Tests\TestCase;
 
@@ -86,7 +87,7 @@ class RecordFieldValueTest extends TestCase
         //Check is Exception
         $recordFieldValue = new RecordFieldValue();
         $recordFieldValue->setValue(new RecordFieldValue());
-        $this->setExpectedException('Yandex\DataSync\Exception\EmptyRecordFieldValueTypeException');
+        $this->expectException(EmptyRecordFieldValueTypeException::class);
         $recordFieldValue->toArray();//throw Exception
     }
 }

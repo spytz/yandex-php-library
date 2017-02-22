@@ -10,12 +10,24 @@
  */
 namespace Yandex\Tests\DataSync;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\ForbiddenException;
+use Yandex\Common\Exception\IncorrectDataFormatException;
+use Yandex\Common\Exception\InvalidArgumentException as YandexInvalidArgumentException;
+use Yandex\Common\Exception\NotFoundException;
+use Yandex\Common\Exception\TooManyRequestsException;
+use Yandex\Common\Exception\UnauthorizedException;
+use Yandex\Common\Exception\UnavailableResourceException;
 use Yandex\DataSync\DataSyncClient;
+use Yandex\DataSync\Exception\DataSyncException;
+use Yandex\DataSync\Exception\IncorrectRevisionNumberException;
+use Yandex\DataSync\Exception\MaxDatabasesCountException;
+use Yandex\DataSync\Exception\RevisionOnServerOverCurrentException;
+use Yandex\DataSync\Exception\RevisionTooOldException;
 use Yandex\DataSync\Models\Database;
 use Yandex\Tests\TestCase;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
 
 /**
  * PackageTest
@@ -47,7 +59,7 @@ class DataSyncClientTest extends TestCase
     {
         $token   = 'TOKEN';
         $context = 'INCORRECT_CONTEXT';
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException');
+        $this->expectException(YandexInvalidArgumentException::class);
         new DataSyncClient($token, $context);
     }
 
@@ -55,7 +67,7 @@ class DataSyncClientTest extends TestCase
     {
         $token          = 'TOKEN';
         $dataSyncClient = new DataSyncClient($token);
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException', 'Empty database id');
+        $this->expectException(YandexInvalidArgumentException::class);
         $dataSyncClient->getDatabaseId();
     }
 
@@ -63,7 +75,7 @@ class DataSyncClientTest extends TestCase
     {
         $token          = 'TOKEN';
         $dataSyncClient = new DataSyncClient($token);
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException', 'Empty context');
+        $this->expectException(YandexInvalidArgumentException::class);
         $dataSyncClient->getContext();
     }
 
@@ -73,17 +85,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(400);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\InvalidArgumentException');
+        $this->expectException(YandexInvalidArgumentException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -93,17 +108,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(401);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException');
+        $this->expectException(UnauthorizedException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -113,17 +131,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(403);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\ForbiddenException');
+        $this->expectException(ForbiddenException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -133,17 +154,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(404);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\NotFoundException');
+        $this->expectException(NotFoundException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -153,17 +177,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(406);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\IncorrectDataFormatException');
+        $this->expectException(IncorrectDataFormatException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -173,17 +200,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(409);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\DataSync\Exception\RevisionOnServerOverCurrentException');
+        $this->expectException(RevisionOnServerOverCurrentException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -193,17 +223,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(410);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\DataSync\Exception\RevisionTooOldException');
+        $this->expectException(RevisionTooOldException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -213,17 +246,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(412);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\DataSync\Exception\IncorrectRevisionNumberException');
+        $this->expectException(IncorrectRevisionNumberException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -233,17 +269,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(415);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\IncorrectDataFormatException');
+        $this->expectException(IncorrectDataFormatException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -253,17 +292,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(423);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\UnavailableResourceException');
+        $this->expectException(UnavailableResourceException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -273,17 +315,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(429);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\TooManyRequestsException');
+        $this->expectException(TooManyRequestsException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -293,17 +338,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(507);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\DataSync\Exception\MaxDatabasesCountException');
+        $this->expectException(MaxDatabasesCountException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -313,17 +361,20 @@ class DataSyncClientTest extends TestCase
         $response             = new Response(599);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\DataSync\Exception\DataSyncException');
+        $this->expectException(DataSyncException::class);
         $dataSyncClientMock->getDatabase($databaseId, DataSyncClient::CONTEXT_USER);
     }
 
@@ -332,12 +383,15 @@ class DataSyncClientTest extends TestCase
         $json                 = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-database.json');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
         $databaseId           = 'DATABASE_ID';
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['getClient']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

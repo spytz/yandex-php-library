@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\SearchClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,12 +27,14 @@ class SearchClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $searchClientMock = $this->getMock('Yandex\Market\Content\Clients\SearchClient', ['sendRequest']);
+        $searchClientMock = $this->getMockBuilder(SearchClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $searchClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $searchResponse = $searchClientMock->get(['geo_id'=>44, 'text'=> 'Motul 8100 X-cess 5W-40']);
+        $searchResponse = $searchClientMock->get(['geo_id' => 44, 'text' => 'Motul 8100 X-cess 5W-40']);
 
         $this->assertEquals(
             $jsonObj->searchResult->count,
@@ -472,7 +474,7 @@ class SearchClientTest extends TestCase
         $schedules = $outlet->getSchedules();
 
         /** @var Schedule $schedule0 */
-        $schedule0=$schedules->current();
+        $schedule0 = $schedules->current();
 
         $this->assertEquals(
             $jsonObj->searchResult->results[1]->offer->outlet->schedule[0]->workingDaysFrom,
@@ -574,12 +576,14 @@ class SearchClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $searchClientMock = $this->getMock('Yandex\Market\Content\Clients\SearchClient', ['sendRequest']);
+        $searchClientMock = $this->getMockBuilder(SearchClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $searchClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $searchFilterCategoryResponse = $searchClientMock->getFilterCategory(90478, ['geo_id'=>44, 'count'=>1]);
+        $searchFilterCategoryResponse = $searchClientMock->getFilterCategory(90478, ['geo_id' => 44, 'count' => 1]);
 
         $this->assertEquals(
             $jsonObj->searchResult->count,
@@ -700,12 +704,14 @@ class SearchClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $searchClientMock = $this->getMock('Yandex\Market\Content\Clients\SearchClient', ['sendRequest']);
+        $searchClientMock = $this->getMockBuilder(SearchClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $searchClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $searchFilterCategoryResponse = $searchClientMock->getFilterCategory(90478, ['geo_id'=>44, 'count'=>1]);
+        $searchFilterCategoryResponse = $searchClientMock->getFilterCategory(90478, ['geo_id' => 44, 'count' => 1]);
 
         $this->assertEquals(
             $jsonObj->searchResult->count,
@@ -1004,7 +1010,7 @@ class SearchClientTest extends TestCase
         $schedules = $outlet->getSchedules();
 
         /** @var Schedule $schedule0 */
-        $schedule0=$schedules->current();
+        $schedule0 = $schedules->current();
 
         $this->assertEquals(
             $jsonObj->searchResult->results[0]->offer->outlet->schedule[0]->workingDaysFrom,

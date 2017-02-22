@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\OfferClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class OfferClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $offerClientMock = $this->getMock('Yandex\Market\Content\Clients\OfferClient', ['sendRequest']);
+        $offerClientMock = $this->getMockBuilder(OfferClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $offerClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

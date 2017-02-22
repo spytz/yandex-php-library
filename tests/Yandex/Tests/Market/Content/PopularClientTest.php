@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\PopularClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class PopularClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $popularClientMock = $this->getMock('Yandex\Market\Content\Clients\PopularClient', ['sendRequest']);
+        $popularClientMock = $this->getMockBuilder(PopularClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $popularClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -151,7 +153,9 @@ class PopularClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $popularClientMock = $this->getMock('Yandex\Market\Content\Clients\PopularClient', ['sendRequest']);
+        $popularClientMock = $this->getMockBuilder(PopularClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $popularClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

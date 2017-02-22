@@ -2,11 +2,12 @@
 
 namespace Yandex\Tests\Metrica;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Psr7\Response;
 use Yandex\Metrica\Management\Models\Operation;
 use Yandex\Metrica\Management\OperationsClient;
-use Yandex\Tests\TestCase;
 use Yandex\Tests\Metrica\Fixtures\Operations;
-use GuzzleHttp\Psr7\Response;
+use Yandex\Tests\TestCase;
 
 class OperationsClientTest extends TestCase
 {
@@ -14,7 +15,7 @@ class OperationsClientTest extends TestCase
     {
         $fixtures = Operations::$operationsFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Management\OperationsClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(OperationsClient::class)->setMethods(['sendGetRequest'])->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -37,7 +38,7 @@ class OperationsClientTest extends TestCase
     {
         $fixtures = Operations::$operationFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Management\OperationsClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(OperationsClient::class)->setMethods(['sendGetRequest'])->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -54,14 +55,12 @@ class OperationsClientTest extends TestCase
     public function testAddOperation()
     {
         $fixtures             = Operations::$operationFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)->setMethods(['request'])->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var OperationsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\OperationsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(OperationsClient::class)->setMethods(['getClient'])->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -80,14 +79,12 @@ class OperationsClientTest extends TestCase
     public function testUpdateOperation()
     {
         $fixtures             = Operations::$operationFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)->setMethods(['request'])->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var OperationsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\OperationsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(OperationsClient::class)->setMethods(['getClient'])->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -106,14 +103,12 @@ class OperationsClientTest extends TestCase
     public function testDeleteCounterOperation()
     {
         $fixtures             = Operations::$deleteResponseFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)->setMethods(['request'])->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var OperationsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\OperationsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(OperationsClient::class)->setMethods(['getClient'])->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

@@ -39,8 +39,9 @@ class DatabaseDeltaTest extends TestCase
         $revision   = 2;
         $json       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/save-delta.json');
         $response   = new Response(200, ['ETag' => ($revision + 1)], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -110,8 +111,9 @@ class DatabaseDeltaTest extends TestCase
         $fields     = ['href'];
         $json       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/save-delta-filtered.json');
         $response   = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -243,8 +245,9 @@ class DatabaseDeltaTest extends TestCase
         $json         = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-delta.json');
         $jsonObj      = json_decode($json);
         $response     = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -267,8 +270,9 @@ class DatabaseDeltaTest extends TestCase
         $limit        = 100;
         $json         = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-delta-filtered.json');
         $response     = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        /** @var DataSyncClient $dataSyncClientMock */
-        $dataSyncClientMock = $this->getMock('Yandex\DataSync\DataSyncClient', ['sendRequest']);
+        $dataSyncClientMock = $this->getMockBuilder(DataSyncClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $dataSyncClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

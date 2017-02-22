@@ -4,11 +4,14 @@
  */
 namespace Yandex\Tests\Market\Partner;
 
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\ForbiddenException;
+use Yandex\Common\Exception\UnauthorizedException;
+use Yandex\Market\Partner\Exception\PartnerRequestException;
+use Yandex\Market\Partner\Models\Delivery;
 use Yandex\Market\Partner\Models\Item;
-use Yandex\Market\Partner\Models\Order;
 use Yandex\Market\Partner\PartnerClient;
 use Yandex\Tests\TestCase;
 
@@ -28,7 +31,9 @@ class PartnerClientTest extends TestCase
         $campaignsJson = json_decode($json, true);
 
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['sendRequest']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -53,7 +58,9 @@ class PartnerClientTest extends TestCase
         $ordersJson = json_decode($json);
 
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['sendRequest']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -171,12 +178,10 @@ class PartnerClientTest extends TestCase
 
     public function testGetAccessToken()
     {
-        $marketPartnerMock = $this->getMock(
-            'Yandex\Market\Partner\PartnerClient',
-            ['getClientId', 'getLogin'],
-            ['testAccessToken']
-        );
-
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClientId', 'getLogin'])
+            ->getMock();
+        $marketPartnerMock->setAccessToken('testAccessToken');
         $marketPartnerMock->expects($this->any())
             ->method('getClientId')
             ->will($this->returnValue(111));
@@ -192,7 +197,9 @@ class PartnerClientTest extends TestCase
 
     public function testGetPropertiesPartnerClient()
     {
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getAccessToken']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getAccessToken'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getAccessToken')
             ->will($this->returnValue('oauth_token=testAccessToken, oauth_client_id=222, oauth_login=testLogin2'));
@@ -212,18 +219,22 @@ class PartnerClientTest extends TestCase
         $address = $jsonObj->order->delivery->address;
 
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['sendRequest']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $deliveryMock = $this->getMock('Yandex\Market\Partner\Models\Delivery', ['getAddress']);
+        $deliveryMock = $this->getMockBuilder(Delivery::class)
+            ->setMethods(['getAddress'])
+            ->getMock();
         $deliveryMock->expects($this->any())
             ->method('getAddress')
             ->will($this->returnValue($address));
 
         $updateDeliveryResp = $marketPartnerMock->updateDelivery(12345, $deliveryMock);
-        
+
         //delivery->address
         $this->assertEquals($address->house, $updateDeliveryResp->getDelivery()->getAddress()->getHouse());
         $this->assertEquals($address->entrance, $updateDeliveryResp->getDelivery()->getAddress()->getEntrance());
@@ -241,7 +252,9 @@ class PartnerClientTest extends TestCase
         $orderId = $jsonObj->order->id;
 
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['sendRequest']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -259,12 +272,16 @@ class PartnerClientTest extends TestCase
         $jsonObj = json_decode($json);
         $orderId = $jsonObj->order->id;
 
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
 
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getClient']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -282,16 +299,20 @@ class PartnerClientTest extends TestCase
         $response             = new Response(403);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
 
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getClient']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
-        $this->setExpectedException('Yandex\Common\Exception\ForbiddenException');
+        $this->expectException(ForbiddenException::class);
 
         $marketPartnerMock->getOrder($orderId);
     }
@@ -305,16 +326,20 @@ class PartnerClientTest extends TestCase
         $response             = new Response(401);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
 
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getClient']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
-        $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException');
+        $this->expectException(UnauthorizedException::class);
 
         $marketPartnerMock->getOrder($orderId);
     }
@@ -328,16 +353,20 @@ class PartnerClientTest extends TestCase
         $response             = new Response(402);
         $request              = new Request('GET', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
 
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getClient']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
-        $this->setExpectedException('Yandex\Market\Partner\Exception\PartnerRequestException');
+        $this->expectException(PartnerRequestException::class);
 
         $marketPartnerMock->getOrder($orderId);
     }
@@ -353,16 +382,20 @@ class PartnerClientTest extends TestCase
         $request              = new Request('GET', '');
         $response             = new Response(401, [], $jsonStr);
         $clientException      = new \GuzzleHttp\Exception\ClientException('', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($clientException));
 
-        $marketPartnerMock = $this->getMock('Yandex\Market\Partner\PartnerClient', ['getClient']);
+        $marketPartnerMock = $this->getMockBuilder(PartnerClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $marketPartnerMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
-        $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException', 'testUnauthorizedExceptionMessage');
+        $this->expectException(UnauthorizedException::class);
 
         $marketPartnerMock->getOrder($orderId);
     }

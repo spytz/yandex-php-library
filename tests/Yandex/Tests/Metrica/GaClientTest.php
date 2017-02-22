@@ -2,9 +2,10 @@
 
 namespace Yandex\Tests\Metrica;
 
-use Yandex\Tests\TestCase;
-use Yandex\Tests\Metrica\Fixtures\Analytics;
+use Yandex\Metrica\Analytics\GaClient;
 use Yandex\Metrica\Analytics\Models;
+use Yandex\Tests\Metrica\Fixtures\Analytics;
+use Yandex\Tests\TestCase;
 
 class GaClientTest extends TestCase
 {
@@ -13,7 +14,9 @@ class GaClientTest extends TestCase
     {
         $fixtures = Analytics::$analyticsFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Analytics\GaClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(GaClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));

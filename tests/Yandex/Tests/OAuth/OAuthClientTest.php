@@ -2,18 +2,17 @@
 
 namespace Yandex\Tests\OAuth;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Exception\ClientException as GuzzleHttpClientException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Yandex\OAuth\Exception\AuthRequestException;
+use Yandex\OAuth\Exception\AuthResponseException;
 use Yandex\OAuth\OAuthClient;
 use Yandex\Tests\TestCase;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
 
 class OAuthClientTest extends TestCase
 {
-    public function testCreate()
-    {
-        $this->getOauthClient();
-    }
-
     public function testGetClient()
     {
         $oauthClient = $this->getOauthClient();
@@ -321,8 +320,8 @@ class OAuthClientTest extends TestCase
             'OK'
         );
 
-        $guzzleClient = $this->getMockBuilder('GuzzleHttp\Client')
-            ->setMethods(array('request'))
+        $guzzleClient = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
             ->getMock();
 
         $guzzleClient->expects($this->once())
@@ -364,17 +363,20 @@ class OAuthClientTest extends TestCase
         $response             = new Response(400, [], \GuzzleHttp\Psr7\stream_for($json));
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var OAuthClient $oauthClientMock */
-        $oauthClientMock = $this->getMock('Yandex\OAuth\OAuthClient', ['getClient']);
+        $oauthClientMock = $this->getMockBuilder(OAuthClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $oauthClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\OAuth\Exception\AuthRequestException');
+        $this->expectException(AuthRequestException::class);
         $oauthClientMock->requestAccessToken($code);
     }
 
@@ -384,17 +386,20 @@ class OAuthClientTest extends TestCase
         $response             = new Response(400, [], \GuzzleHttp\Psr7\stream_for(''));
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var OAuthClient $oauthClientMock */
-        $oauthClientMock = $this->getMock('Yandex\OAuth\OAuthClient', ['getClient']);
+        $oauthClientMock = $this->getMockBuilder(OAuthClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $oauthClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('GuzzleHttp\Exception\ClientException');
+        $this->expectException(GuzzleHttpClientException::class);
         $oauthClientMock->requestAccessToken($code);
     }
 
@@ -402,17 +407,20 @@ class OAuthClientTest extends TestCase
     {
         $code                 = '33333333';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(''));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var OAuthClient $oauthClientMock */
-        $oauthClientMock = $this->getMock('Yandex\OAuth\OAuthClient', ['getClient']);
+        $oauthClientMock = $this->getMockBuilder(OAuthClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $oauthClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\OAuth\Exception\AuthResponseException');
+        $this->expectException(AuthResponseException::class);
         $oauthClientMock->requestAccessToken($code);
     }
 
@@ -421,17 +429,20 @@ class OAuthClientTest extends TestCase
         $code                 = '33333333';
         $json                 = '{"error_description": "Invalid code", "error": "bad_verification_code"}';
         $response             = new Response(400, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var OAuthClient $oauthClientMock */
-        $oauthClientMock = $this->getMock('Yandex\OAuth\OAuthClient', ['getClient']);
+        $oauthClientMock = $this->getMockBuilder(OAuthClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $oauthClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\OAuth\Exception\AuthResponseException');
+        $this->expectException(AuthResponseException::class);
         $oauthClientMock->requestAccessToken($code);
     }
 
@@ -439,22 +450,27 @@ class OAuthClientTest extends TestCase
     {
         $code               = '33333333';
         $exception          = new \RuntimeException('error');
-        $guzzleResponseMock = $this->getMock('GuzzleHttp\Psr7\Response', ['getBody']);
+        $guzzleResponseMock = $this->getMockBuilder(Response::class)
+            ->setMethods(['getBody'])
+            ->getMock();
         $guzzleResponseMock->expects($this->any())
             ->method('getBody')
             ->will($this->throwException($exception));
 
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($guzzleResponseMock));
-        /** @var OAuthClient $oauthClientMock */
-        $oauthClientMock = $this->getMock('Yandex\OAuth\OAuthClient', ['getClient']);
+        $oauthClientMock = $this->getMockBuilder(OAuthClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $oauthClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\OAuth\Exception\AuthResponseException');
+        $this->expectException(AuthResponseException::class);
         $oauthClientMock->requestAccessToken($code);
     }
 

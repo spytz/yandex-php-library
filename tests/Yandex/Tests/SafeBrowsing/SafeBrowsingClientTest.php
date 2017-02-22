@@ -10,10 +10,15 @@
  */
 namespace Yandex\Tests\SafeBrowsing;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Request;
-use Yandex\SafeBrowsing\SafeBrowsingClient;
-use Yandex\Tests\TestCase;
 use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\ForbiddenException;
+use Yandex\Common\Exception\NotFoundException;
+use Yandex\Common\Exception\UnauthorizedException;
+use Yandex\SafeBrowsing\SafeBrowsingClient;
+use Yandex\SafeBrowsing\SafeBrowsingException;
+use Yandex\Tests\TestCase;
 
 /**
  * PackageTest
@@ -73,12 +78,15 @@ class SafeBrowsingClientTest extends TestCase
     {
         $url                  = 'http://site.com/';
         $response             = new Response(204);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -91,17 +99,20 @@ class SafeBrowsingClientTest extends TestCase
     {
         $url                  = 'http://site.com/';
         $response             = new Response(500);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsingMock->searchUrl($url);
     }
 
@@ -112,12 +123,15 @@ class SafeBrowsingClientTest extends TestCase
         );
         $url                  = 'www.wmconvirus.narod.ru';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -153,12 +167,15 @@ class SafeBrowsingClientTest extends TestCase
         $content              = 'malware';
         $url                  = 'www.wmconvirus.narod.ru';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -171,12 +188,15 @@ class SafeBrowsingClientTest extends TestCase
     {
         $url                  = 'test.com';
         $response             = new Response(204);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -190,12 +210,15 @@ class SafeBrowsingClientTest extends TestCase
         $content              = 'adult';
         $url                  = 'www.wmconvirus.narod.ru';
         $response             = new Response(200, [], $content);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -208,12 +231,15 @@ class SafeBrowsingClientTest extends TestCase
     {
         $url                  = 'test.com';
         $response             = new Response(200);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -228,17 +254,20 @@ class SafeBrowsingClientTest extends TestCase
         $response             = new Response(403);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\ForbiddenException');
+        $this->expectException(ForbiddenException::class);
         $safeBrowsingMock->checkAdult($url);
     }
 
@@ -248,17 +277,20 @@ class SafeBrowsingClientTest extends TestCase
         $response             = new Response(401);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\UnauthorizedException');
+        $this->expectException(UnauthorizedException::class);
         $safeBrowsingMock->checkAdult($url);
     }
 
@@ -268,17 +300,20 @@ class SafeBrowsingClientTest extends TestCase
         $response             = new Response(404);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\NotFoundException');
+        $this->expectException(NotFoundException::class);
         $safeBrowsingMock->checkAdult($url);
     }
 
@@ -288,17 +323,20 @@ class SafeBrowsingClientTest extends TestCase
         $response             = new Response(500);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsingMock->checkAdult($url);
     }
 
@@ -318,12 +356,15 @@ class SafeBrowsingClientTest extends TestCase
         $url                  = 'http://test.com';
         $content              = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -340,12 +381,15 @@ class SafeBrowsingClientTest extends TestCase
         ydx-imgs-shavar
         goog-mobile-only-malware-shavar';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -358,17 +402,20 @@ class SafeBrowsingClientTest extends TestCase
     {
         $content              = '';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsingMock->getMalwaresData();
     }
 
@@ -376,7 +423,7 @@ class SafeBrowsingClientTest extends TestCase
     {
         $safeBrowsing = new SafeBrowsingClient();
         $safeBrowsing->setMalwareShavars([]);
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsing->getMalwaresData();
     }
 
@@ -384,12 +431,15 @@ class SafeBrowsingClientTest extends TestCase
     {
         $content              = 'r:pleasereset';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($content));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -418,12 +468,15 @@ class SafeBrowsingClientTest extends TestCase
         );
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -440,12 +493,15 @@ class SafeBrowsingClientTest extends TestCase
         $chunk                = '';
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -453,7 +509,7 @@ class SafeBrowsingClientTest extends TestCase
             ->method('getChunkByUrl')
             ->will($this->returnValue($chunk));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsingMock->getMalwaresData();
     }
 
@@ -462,12 +518,15 @@ class SafeBrowsingClientTest extends TestCase
         $chunk                = 's:13314:4:';
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -485,12 +544,15 @@ class SafeBrowsingClientTest extends TestCase
         000';
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -498,7 +560,7 @@ class SafeBrowsingClientTest extends TestCase
             ->method('getChunkByUrl')
             ->will($this->returnValue($chunk));
 
-        $this->setExpectedException('Yandex\SafeBrowsing\SafeBrowsingException');
+        $this->expectException(SafeBrowsingException::class);
         $safeBrowsingMock->getMalwaresData();
     }
 
@@ -508,12 +570,15 @@ class SafeBrowsingClientTest extends TestCase
 000';
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -531,12 +596,15 @@ class SafeBrowsingClientTest extends TestCase
 999999999999999999999999';
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -553,12 +621,15 @@ class SafeBrowsingClientTest extends TestCase
         $chunksResponse       = file_get_contents(__DIR__ . '/' . $this->fixturesFolder . '/get-chunks-response.txt');
         $response             = new Response(404, [], \GuzzleHttp\Psr7\stream_for($chunksResponse));
         $exception            = new \Yandex\Common\Exception\NotFoundException('error');
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -580,12 +651,15 @@ class SafeBrowsingClientTest extends TestCase
         sd:10-11';
         $response             = new Response(404, [], \GuzzleHttp\Psr7\stream_for($content));
         $exception            = new \Yandex\Common\Exception\NotFoundException('error');
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var SafeBrowsingClient $safeBrowsingMock */
-        $safeBrowsingMock = $this->getMock('Yandex\SafeBrowsing\SafeBrowsingClient', ['getClient', 'getChunkByUrl']);
+        $safeBrowsingMock = $this->getMockBuilder(SafeBrowsingClient::class)
+            ->setMethods(['getClient', 'getChunkByUrl'])
+            ->getMock();
         $safeBrowsingMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

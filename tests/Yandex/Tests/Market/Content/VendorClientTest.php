@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\VendorClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class VendorClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $vendorClientMock = $this->getMock('Yandex\Market\Content\Clients\VendorClient', ['sendRequest']);
+        $vendorClientMock = $this->getMockBuilder(VendorClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $vendorClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -256,7 +258,9 @@ class VendorClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $vendorClientMock = $this->getMock('Yandex\Market\Content\Clients\VendorClient', ['sendRequest']);
+        $vendorClientMock = $this->getMockBuilder(VendorClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $vendorClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -445,12 +449,14 @@ class VendorClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $vendorClientMock = $this->getMock('Yandex\Market\Content\Clients\VendorClient', ['sendRequest']);
+        $vendorClientMock = $this->getMockBuilder(VendorClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $vendorClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
 
-        $vendorMatchResponse = $vendorClientMock->getMatch(['name'=>'nike']);
+        $vendorMatchResponse = $vendorClientMock->getMatch(['name' => 'nike']);
 
         $this->assertEquals(
             $jsonObj->time,

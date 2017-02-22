@@ -2,11 +2,12 @@
 
 namespace Yandex\Tests\Metrica;
 
-use Yandex\Metrica\Management\DelegatesClient;
-use Yandex\Tests\TestCase;
-use Yandex\Tests\Metrica\Fixtures\Delegates;
+use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Psr7\Response;
+use Yandex\Metrica\Management\DelegatesClient;
 use Yandex\Metrica\Management\Models;
+use Yandex\Tests\Metrica\Fixtures\Delegates;
+use Yandex\Tests\TestCase;
 
 class DelegatesClientTest extends TestCase
 {
@@ -14,7 +15,9 @@ class DelegatesClientTest extends TestCase
     {
         $fixtures = Delegates::$delegatesFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Management\DelegatesClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DelegatesClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -29,14 +32,16 @@ class DelegatesClientTest extends TestCase
     public function testUpdateDelegates()
     {
         $fixtures             = Delegates::$delegatesFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DelegatesClient $delegatesClientMock */
-        $delegatesClientMock = $this->getMock('Yandex\Metrica\Management\DelegatesClient', ['getClient'], [$token]);
+        $delegatesClientMock = $this->getMockBuilder(DelegatesClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $delegatesClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -53,14 +58,16 @@ class DelegatesClientTest extends TestCase
     public function testAddDelegates()
     {
         $fixtures             = Delegates::$delegatesFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DelegatesClient $delegatesClientMock */
-        $delegatesClientMock = $this->getMock('Yandex\Metrica\Management\DelegatesClient', ['getClient'], [$token]);
+        $delegatesClientMock = $this->getMockBuilder(DelegatesClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $delegatesClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -76,14 +83,16 @@ class DelegatesClientTest extends TestCase
     public function testDeleteDelegate()
     {
         $fixtures             = Delegates::$delegateDeleteResponseFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DelegatesClient $delegatesClientMock */
-        $delegatesClientMock = $this->getMock('Yandex\Metrica\Management\DelegatesClient', ['getClient'], [$token]);
+        $delegatesClientMock = $this->getMockBuilder(DelegatesClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $delegatesClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

@@ -10,12 +10,15 @@
  */
 namespace Yandex\Tests\Dictionary;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Yandex\Common\Exception\ForbiddenException;
 use Yandex\Dictionary\DictionaryClient;
 use Yandex\Dictionary\DictionaryDefinition;
 use Yandex\Dictionary\DictionaryTranslation;
+use Yandex\Dictionary\Exception\DictionaryException;
 use Yandex\Tests\TestCase;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Request;
 
 /**
  * PackageTest
@@ -41,17 +44,20 @@ class DictionaryClientTest extends TestCase
 
     public function testGetLanguages()
     {
-        $apiKey               = 'test';
         $json                 = file_get_contents(
             __DIR__ . '/' . $this->fixturesFolder . '/get-languages-response.json'
         );
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -63,14 +69,17 @@ class DictionaryClientTest extends TestCase
 
     public function testGetLanguagesError()
     {
-        $apiKey               = 'test';
         $response             = new Response(500);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -81,59 +90,67 @@ class DictionaryClientTest extends TestCase
 
     function testSendRequestForbiddenException()
     {
-        $apiKey               = 'test';
         $response             = new Response(403);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)->setMethods(['request'])->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Common\Exception\ForbiddenException');
+        $this->expectException(ForbiddenException::class);
         $dictionaryClientMock->getLanguages();
     }
 
     function testSendRequestDictionaryException()
     {
-        $apiKey               = 'test';
         $response             = new Response(500);
         $request              = new Request('POST', '');
         $exception            = new \GuzzleHttp\Exception\ClientException('error', $request, $response);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->throwException($exception));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
 
-        $this->setExpectedException('Yandex\Dictionary\Exception\DictionaryException');
+        $this->expectException(DictionaryException::class);
         $dictionaryClientMock->getLanguages();
     }
 
     public function testLookupText()
     {
-        $apiKey               = 'test';
         $text                 = 'hi';
         $translation          = 'привет';
         $json                 = file_get_contents(
             __DIR__ . '/' . $this->fixturesFolder . '/lookup-response.json'
         );
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -157,19 +174,22 @@ class DictionaryClientTest extends TestCase
 
     public function testLookupOtherText()
     {
-        $apiKey               = 'test';
         $text                 = 'lookup';
         $translation          = 'поиск';
         $json                 = file_get_contents(
             __DIR__ . '/' . $this->fixturesFolder . '/lookup-response2.json'
         );
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -197,15 +217,19 @@ class DictionaryClientTest extends TestCase
 
     public function testLookupError()
     {
-        $apiKey               = 'test';
         $text                 = 'hi';
         $response             = new Response(500);
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
         /** @var DictionaryClient $dictionaryClientMock */
-        $dictionaryClientMock = $this->getMock('Yandex\Dictionary\DictionaryClient', ['getClient'], [$apiKey]);
+        $dictionaryClientMock = $this->getMockBuilder(DictionaryClient::class)
+            ->setMethods(['getClient'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $dictionaryClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

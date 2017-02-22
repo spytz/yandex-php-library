@@ -10,6 +10,7 @@
  */
 namespace Yandex\Tests\Metrica;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
 use Yandex\Metrica\Stat\DataClient;
 use Yandex\Metrica\Stat\StatClient;
 use Yandex\Tests\TestCase;
@@ -40,7 +41,10 @@ class StatClientTest extends TestCase
     public function testMethodDataWithCustomClient()
     {
         $token      = 'test';
-        $statClient = new StatClient($token, $this->getMock('GuzzleHttp\Client'));
+        $mock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
+        $statClient = new StatClient($token, $mock);
         $client     = $statClient->data();
         $this->assertTrue($client instanceof DataClient);
         $this->assertEquals($token, $client->getAccessToken());

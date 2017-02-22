@@ -2,19 +2,21 @@
 
 namespace Yandex\Tests\Metrica;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Psr7\Response;
 use Yandex\Metrica\Management\GoalsClient;
 use Yandex\Metrica\Management\Models\Goal;
-use Yandex\Tests\TestCase;
 use Yandex\Tests\Metrica\Fixtures\Goals;
-use GuzzleHttp\Psr7\Response;
+use Yandex\Tests\TestCase;
 
 class GoalsClientTest extends TestCase
 {
     public function testGetGoals()
     {
         $fixtures = Goals::$goalsFixtures;
-        /** @var GoalsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\GoalsClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(GoalsClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -40,8 +42,9 @@ class GoalsClientTest extends TestCase
     public function testGetGoal()
     {
         $fixtures = Goals::$goalFixtures;
-        /** @var GoalsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\GoalsClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(GoalsClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -61,14 +64,16 @@ class GoalsClientTest extends TestCase
     public function testAddGoal()
     {
         $fixtures             = Goals::$goalFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var GoalsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\GoalsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(GoalsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -90,14 +95,16 @@ class GoalsClientTest extends TestCase
     public function testUpdateGoal()
     {
         $fixtures             = Goals::$goalFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var GoalsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\GoalsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(GoalsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -119,14 +126,16 @@ class GoalsClientTest extends TestCase
     public function testDeleteGoal()
     {
         $fixtures             = Goals::$deleteResponseFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var GoalsClient $mock */
-        $mock = $this->getMock('Yandex\Metrica\Management\GoalsClient', ['getClient'], [$token]);
+        $mock = $this->getMockBuilder(GoalsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

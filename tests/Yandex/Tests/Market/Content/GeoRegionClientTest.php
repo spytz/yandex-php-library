@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\GeoRegionClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class GeoRegionClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $geoRegionClientMock = $this->getMock('Yandex\Market\Content\Clients\GeoRegionClient', ['sendRequest']);
+        $geoRegionClientMock = $this->getMockBuilder(GeoRegionClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $geoRegionClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -102,7 +104,9 @@ class GeoRegionClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $geoRegionClientMock = $this->getMock('Yandex\Market\Content\Clients\GeoRegionClient', ['sendRequest']);
+        $geoRegionClientMock = $this->getMockBuilder(GeoRegionClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $geoRegionClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -139,7 +143,9 @@ class GeoRegionClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $geoRegionClientMock = $this->getMock('Yandex\Market\Content\Clients\GeoRegionClient', ['sendRequest']);
+        $geoRegionClientMock = $this->getMockBuilder(GeoRegionClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $geoRegionClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -215,7 +221,9 @@ class GeoRegionClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $geoRegionClientMock = $this->getMock('Yandex\Market\Content\Clients\GeoRegionClient', ['sendRequest']);
+        $geoRegionClientMock = $this->getMockBuilder(GeoRegionClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $geoRegionClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -283,7 +291,9 @@ class GeoRegionClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $geoRegionClientMock = $this->getMock('Yandex\Market\Content\Clients\GeoRegionClient', ['sendRequest']);
+        $geoRegionClientMock = $this->getMockBuilder(GeoRegionClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $geoRegionClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

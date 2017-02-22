@@ -2,6 +2,7 @@
 
 namespace Yandex\Tests\Metrica;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
 use Yandex\Metrica\Management\Models;
 use Yandex\Metrica\Management\AccountsClient;
 use Yandex\Tests\TestCase;
@@ -15,7 +16,9 @@ class AccountsClientTest extends TestCase
     {
         $fixtures = Accounts::$accountsFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -29,14 +32,16 @@ class AccountsClientTest extends TestCase
     public function testUpdateAccounts()
     {
         $fixtures             = Accounts::$accountsFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));
@@ -52,14 +57,16 @@ class AccountsClientTest extends TestCase
     public function testDeleteAccounts()
     {
         $fixtures             = Accounts::$accountsFixtures;
-        $token                = 'test';
         $response             = new Response(200, [], \GuzzleHttp\Psr7\stream_for(json_encode($fixtures)));
-        $guzzleHttpClientMock = $this->getMock('GuzzleHttp\Client', ['request']);
+        $guzzleHttpClientMock = $this->getMockBuilder(GuzzleHttpClient::class)
+            ->setMethods(['request'])
+            ->getMock();
         $guzzleHttpClientMock->expects($this->any())
             ->method('request')
             ->will($this->returnValue($response));
-        /** @var AccountsClient $accountsClientMock */
-        $accountsClientMock = $this->getMock('Yandex\Metrica\Management\AccountsClient', ['getClient'], [$token]);
+        $accountsClientMock = $this->getMockBuilder(AccountsClient::class)
+            ->setMethods(['getClient'])
+            ->getMock();
         $accountsClientMock->expects($this->any())
             ->method('getClient')
             ->will($this->returnValue($guzzleHttpClientMock));

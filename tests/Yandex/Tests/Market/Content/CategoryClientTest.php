@@ -5,7 +5,7 @@
 namespace Yandex\Tests\Market;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
+use Yandex\Market\Content\Clients\CategoryClient;
 use Yandex\Tests\TestCase;
 
 /**
@@ -27,7 +27,9 @@ class CategoryClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $categoryClientMock = $this->getMock('Yandex\Market\Content\Clients\CategoryClient', ['sendRequest']);
+        $categoryClientMock = $this->getMockBuilder(CategoryClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $categoryClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -136,7 +138,9 @@ class CategoryClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $categoryClientMock = $this->getMock('Yandex\Market\Content\Clients\CategoryClient', ['sendRequest']);
+        $categoryClientMock = $this->getMockBuilder(CategoryClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $categoryClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -187,7 +191,9 @@ class CategoryClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $categoryClientMock = $this->getMock('Yandex\Market\Content\Clients\CategoryClient', ['sendRequest']);
+        $categoryClientMock = $this->getMockBuilder(CategoryClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $categoryClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -298,7 +304,9 @@ class CategoryClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $categoryClientMock = $this->getMock('Yandex\Market\Content\Clients\CategoryClient', ['sendRequest']);
+        $categoryClientMock = $this->getMockBuilder(CategoryClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $categoryClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));
@@ -477,7 +485,9 @@ class CategoryClientTest extends TestCase
         $jsonObj = json_decode($json);
         $response = new Response(200, [], \GuzzleHttp\Psr7\stream_for($json));
 
-        $categoryClientMock = $this->getMock('Yandex\Market\Content\Clients\CategoryClient', ['sendRequest']);
+        $categoryClientMock = $this->getMockBuilder(CategoryClient::class)
+            ->setMethods(['sendRequest'])
+            ->getMock();
         $categoryClientMock->expects($this->any())
             ->method('sendRequest')
             ->will($this->returnValue($response));

@@ -3,9 +3,9 @@
 namespace Yandex\Tests\Metrica;
 
 use Yandex\Metrica\Stat\DataClient;
+use Yandex\Metrica\Stat\Models;
 use Yandex\Tests\Metrica\Fixtures\Stat;
 use Yandex\Tests\TestCase;
-use Yandex\Metrica\Stat\Models;
 
 class DataClientTest extends TestCase
 {
@@ -14,7 +14,9 @@ class DataClientTest extends TestCase
     {
         $fixtures = Stat::$tableFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Stat\DataClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DataClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -48,7 +50,9 @@ class DataClientTest extends TestCase
     {
         $fixtures = Stat::$drillDownFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Stat\DataClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DataClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -91,7 +95,9 @@ class DataClientTest extends TestCase
     {
         $fixtures = Stat::$byTimeFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Stat\DataClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DataClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -122,7 +128,9 @@ class DataClientTest extends TestCase
     {
         $fixtures = Stat::$comparisonFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Stat\DataClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DataClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
@@ -159,7 +167,9 @@ class DataClientTest extends TestCase
     {
         $fixtures = Stat::$drillDownComparisonFixtures;
 
-        $mock = $this->getMock('Yandex\Metrica\Stat\DataClient', ['sendGetRequest']);
+        $mock = $this->getMockBuilder(DataClient::class)
+            ->setMethods(['sendGetRequest'])
+            ->getMock();
         $mock->expects($this->any())
             ->method('sendGetRequest')
             ->will($this->returnValue($fixtures));
