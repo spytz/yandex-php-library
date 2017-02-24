@@ -3,7 +3,6 @@ env:
     - secure: "T+/TQ2mez4tGMRESo61dL8sgUIA2J/RnlcfpmDS4B3ZWxqq4ueFV/072jSftBD3/WRryaKstO+R7h5ftYXIpfBOuhUh0i0FvV2GDPb37s22/TJAnet8KrkNJGp+fxLs7A5fR3f5vqaFMPlbocQAUGxdp8PJ4VP0ButbX9y7LXfM="
 language: php
 php:
-  - 5.5
   - 5.6
   - 7.0
   - hhvm
