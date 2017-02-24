@@ -119,6 +119,17 @@ if (isset($_COOKIE['yaAccessToken']) && isset($_COOKIE['yaClientId'])) {
                             ->setName($_POST['counterName'])
                             ->setSite($_POST['counterSite']);
 
+                        $codeOptions = new \Yandex\Metrica\Management\Models\CodeOptions();
+                        $codeOptions
+                            ->setAsync(1)
+                            ->setTrackHash(1)
+                            ->setVisor(1)
+                            ->setUt(1)
+                            ->setXmlSite(1)
+                            ->setInOneLine(1);
+
+                        $counterPostRequest->setCodeOptions($codeOptions);
+
                         $result = $managementClient
                             ->counters()
                             ->addCounter($counterPostRequest)
@@ -135,6 +146,26 @@ if (isset($_COOKIE['yaAccessToken']) && isset($_COOKIE['yaClientId'])) {
                          * @see http://api.yandex.ru/metrika/doc/ref/reference/edit-counter.xml
                          */
                         $params = new Yandex\Metrica\Management\Models\ExtendCounter();
+
+                        $codeOptions = new \Yandex\Metrica\Management\Models\CodeOptions();
+                        $codeOptions
+                            ->setAsync(1)
+                            ->setTrackHash(0)
+                            ->setVisor(0)
+                            ->setUt(0)
+                            ->setXmlSite(0)
+                            ->setInOneLine(0);
+
+                        $params->setCodeOptions($codeOptions);
+
+                        $webvisor = new \Yandex\Metrica\Management\Models\Webvisor();
+                        $webvisor
+                            ->setArchEnabled(1)
+                            ->setUrls('regexp:.*')
+                            ->setArchType('load')
+                            ->setLoadPlayerType('on_your_behalf');
+
+                        $params->setWebvisor($webvisor);
 
                         if ($_POST['counterName']) {
                             $params->setName($_POST['counterName']);
