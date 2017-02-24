@@ -177,7 +177,7 @@ class DimensionsConst
 
     const S_SOURCE_ENGINE = "ym:s:SourceEngine";
 
-    const S_TRAFFIC_SOURCE = "ym:s:TrafficSource";
+    const S_TRAFFIC_SOURCE = "ym:s:trafficSource";
 
     const S_AGE = "ym:s:age";
 
